@@ -35,7 +35,7 @@ Product.init(
         isNumeric: true,
       },
     },
-    catgeory_id: {
+    category_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
