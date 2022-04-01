@@ -8,7 +8,7 @@ router.get('/', async (req, res) => {
   // be sure to include its associated Product data
   try {
     const allTags = await Tag.findAll({
-      include: [{ model: Product, through: ProductTag, as: 'tag_products' }]
+      include: [{ model: Product, through: ProductTag, as: 'products' }]
     });
     res.status(200).json(allTags);
   } catch (err) {
@@ -21,7 +21,7 @@ router.get('/:id', async (req, res) => {
   // be sure to include its associated Product data
   try {
     const tagById = await Tag.findByPk(req.params.id, {
-      include: [{ model: Product, through: ProductTag, as: 'tag_products' }]
+      include: [{ model: Product, through: ProductTag, as: 'products' }]
     });
 
     if (!tagById) {
@@ -35,8 +35,31 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-router.post('/', (req, res) => {
+router.post('/', async (req, res) => {
   // create a new tag
+  try {
+    const newTag = await Tag.create(req.body);
+    console.log(req.body.productIds.length);
+    // We take the array of product ids (passed in req body) associated to this tag and get its length
+    const prodIDArr = req.body.productIds;
+    console.log(prodIDArr);
+    if (prodIDArr.length) {
+      // Then we create a new array using map to return objects which contain key value pairs of tag_id and associated product id.
+      const mapProdArr = prodIDArr.map((product_id) => {
+        return {
+          tag_id: newTag.id,
+          product_id
+        };
+      });
+      // Then we add this array to the junction table to establish the many-to-many associations between tag and products
+      const prodTag = await ProductTag.bulkCreate(mapProdArr);
+      res.status(200).json(prodTag);
+    } else {
+      res.status(200).json(newTag);
+    }
+  } catch (err) {
+    res.status(400).json(err);
+  }
 });
 
 router.put('/:id', (req, res) => {

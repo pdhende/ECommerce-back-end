@@ -12,7 +12,7 @@ router.get('/', async (req, res) => {
     const allProducts = await Product.findAll({
       // This will display the category the product is associated to. (JOIN with model : Category)
       // and it will display all the tags that are associated with each product. (JOIN with model: Tag through the junction table ProductTag)
-      include: [{ model: Category }, { model: Tag, through: ProductTag, as: 'product_tags' }]
+      include: [{ model: Category }, { model: Tag, through: ProductTag, as: 'tags' }]
     });
     res.status(200).json(allProducts);
   } catch (err) {
@@ -26,7 +26,7 @@ router.get('/:id', async (req, res) => {
   // be sure to include its associated Category and Tag data
   try {
     const productById = await Product.findByPk(req.params.id, {
-      include: [{ model: Category }, { model: Tag, through: ProductTag, as: 'product_tags' }]
+      include: [{ model: Category }, { model: Tag, through: ProductTag, as: 'tags' }]
     });
 
     if (!productById) {
