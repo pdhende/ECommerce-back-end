@@ -71,42 +71,39 @@ router.put('/:id', async (req, res) => {
       },
     });
 
-    // console.log("UPdated tag"+updatdTag);
     // Get all the existing products associated to this tag
     const assocProducts = await ProductTag.findAll({
       where: {
         tag_id: req.params.id,
       }
     });
-
     console.log(assocProducts);
     // Extract only the product ids from assocProducts
     const assocProductIds = assocProducts.map(( { product_id }) => product_id);
-    console.log("extracted IDS "+ assocProductIds);
-
+    console.log(assocProductIds);
     // Get the product id list provided in the update request body
     const newProducts = req.body.productIds;
+    console.log(newProducts);
 
-    // Filter out product ids that do not exist in the already associated products array (that need to be added)
+    // // Filter out product ids that do not exist in the already associated products array (that need to be added)
     let newProductIds = newProducts.filter((product_id) => !assocProductIds.includes(product_id));
-    console.log("new product ids "+newProductIds);
+    console.log(newProductIds);
 
-    // create new array consisting of objects with product_id and tag_id to add to the ProductTag table
+    // // create new array consisting of objects with product_id and tag_id to add to the ProductTag table
     newProductIds = newProductIds.map((product_id) => {
       return {
         tag_id: req.params.id,
         product_id
       };
     });
-    console.log("product tag entries "+newProductIds);
+    console.log(newProductIds);
 
-    // Filter out products that exist in the already associated products array (that need to be removed)
-    let oldProductIds = assocProductIds.filter((product_id) => !newProducts.includes(product_id));
-    console.log("old product ids "+oldProductIds);
+    // Filter out products that exist in the already associated products array and are not present in the new Product ids array(that need to be removed)
+    let oldProductIds = assocProducts.filter(({ product_id }) => !newProducts.includes(product_id));
+    console.log(oldProductIds);
 
-    // create new array consisting of objects with product_id and tag_id to remove from the ProductTag table
     oldProductIds = oldProductIds.map(({ id }) => id);
-    console.log("Ids to delete "+oldProductIds);
+    console.log(oldProductIds);
 
     const deletdProductIds = await ProductTag.destroy({
       where: {
