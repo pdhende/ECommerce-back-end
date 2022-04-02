@@ -7,7 +7,7 @@ const { Product, Category, Tag, ProductTag } = require('../../models');
 // get all products
 router.get('/', async (req, res) => {
   // find all products
-  // be sure to include its associated Category and Tag data
+  //included its associated Category and Tag data
   try {
     const allProducts = await Product.findAll({
       // This will display the category the product is associated to. (JOIN with model : Category)
@@ -23,7 +23,7 @@ router.get('/', async (req, res) => {
 // get one product
 router.get('/:id', async (req, res) => {
   // find a single product by its `id`
-  // be sure to include its associated Category and Tag data
+  // included its associated Category and Tag data
   try {
     const productById = await Product.findByPk(req.params.id, {
       include: [{ model: Category }, { model: Tag, through: ProductTag, as: 'tags' }]
@@ -86,7 +86,6 @@ router.put('/:id', (req, res) => {
     })
     .then((productTags) => {
       // get list of current tag_ids
-      console.log(productTags);
       const productTagIds = productTags.map(({ tag_id }) => tag_id);
       
       // create filtered list of new tag_ids
@@ -99,17 +98,9 @@ router.put('/:id', (req, res) => {
         
 
       // figure out which ones to remove
-      // const productTagsToRemove = productTags
-      //   .filter(({ tag_id }) => !req.body.tagIds.includes(tag_id))
-      //   .map(({ id }) => id);
-
-      let productTagsToRemove = productTags
-      .filter(({ tag_id }) => !req.body.tagIds.includes(tag_id));
-      console.log(productTagsToRemove);
-
-
-      productTagsToRemove = productTagsToRemove.map(({ id }) => id);
-      console.log(productTagsToRemove);
+      const productTagsToRemove = productTags
+        .filter(({ tag_id }) => !req.body.tagIds.includes(tag_id))
+        .map(({ id }) => id);
 
       // run both actions
       return Promise.all([
